@@ -26,12 +26,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/mattn/go-sqlite3"
-
 	"github.com/drakkan/sftpgo/v2/internal/logger"
 	"github.com/drakkan/sftpgo/v2/internal/util"
 	"github.com/drakkan/sftpgo/v2/internal/version"
 	"github.com/drakkan/sftpgo/v2/internal/vfs"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -750,26 +749,29 @@ func (p *SQLiteProvider) normalizeError(err error, fieldType int) error {
 	if err == nil {
 		return nil
 	}
-	if e, ok := err.(sqlite3.Error); ok {
-		switch e.ExtendedCode {
-		case 1555, 2067:
-			var message string
-			switch fieldType {
-			case fieldUsername:
-				message = util.I18nErrorDuplicatedUsername
-			case fieldIPNet:
-				message = util.I18nErrorDuplicatedIPNet
-			default:
-				message = util.I18nErrorDuplicatedName
-			}
-			return util.NewI18nError(
-				fmt.Errorf("%w: %s", ErrDuplicatedKey, err.Error()),
-				message,
-			)
-		case 787:
-			return fmt.Errorf("%w: %s", ErrForeignKeyViolated, err.Error())
-		}
-	}
+	fmt.Errorf("%s", err.Error())
+
+	// if e, ok := err.(sqlite3.Error); ok {
+	// 	switch sqlite3.Error.ExtendedCode {
+	// 	case 1555, 2067:
+	// 		var message string
+	// 		switch fieldType {
+	// 		case fieldUsername:
+	// 			message = util.I18nErrorDuplicatedUsername
+	// 		case fieldIPNet:
+	// 			message = util.I18nErrorDuplicatedIPNet
+	// 		default:
+	// 			message = util.I18nErrorDuplicatedName
+	// 		}
+	// 		return util.NewI18nError(
+	// 			fmt.Errorf("%w: %s", ErrDuplicatedKey, err.Error()),
+	// 			message,
+	// 		)
+	// 	case 787:
+	// 		return fmt.Errorf("%w: %s", ErrForeignKeyViolated, err.Error())
+	// 	}
+	// }
+
 	return err
 }
 
